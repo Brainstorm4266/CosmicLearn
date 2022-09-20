@@ -97,6 +97,7 @@ namespace CosmicLearn
 
                 if (showMotivationScreen)
                 {
+                    showMotivationScreen = false;
                     Console.ForegroundColor = ConsoleColor.Green;
                     Console.WriteLine("\nHalfway point!\nYou're doing very good! Keep it up!");
                     Console.ForegroundColor = ConsoleColor.Gray;
