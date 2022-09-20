@@ -2,4 +2,5 @@
 A quick learning program I made in ~3 days, as a kind of Quizlet replacement.
 
 ## Setup
-Currently, you need your own [MongoDB](https://www.mongodb.com/try/download/community) installation, and Visual Studio with C# (or just use msbuild instead)
+I recommend downloading it from the [releases tab](https://github.com/Brainstorm4266/CosmicLearn/releases/), but if you want to, you can also build CosmicLearn by yourself.
+To build it yourself, you must have Visual Studio (I used version 2022) with C# support, or just use msbuild.
