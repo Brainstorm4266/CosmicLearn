@@ -75,10 +75,10 @@ namespace CosmicLearn
 
             bool showMotivationScreen = false;
 
-            while (running) //TODO: tab to select special chars and round system
+            while (running) //TODO: better mistake system
             {
 
-                if (wtotal % 2 == 0) //TODO: fix motivation screen
+                if (wtotal % 2 == 0)
                 {
                     var c = wtotal;
                     if (todo == (c / 2))

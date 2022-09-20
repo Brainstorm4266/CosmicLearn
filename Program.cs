@@ -7,35 +7,6 @@ namespace CosmicLearn
     {
         public static void Main(string[] args)
         {
-            //while (true)
-            //{
-            //    var key = Console.ReadKey(true);
-            //
-            //    //Console.WriteLine("You pressed " + key.Key.ToString() + "!");
-            //    //Console.WriteLine("Modifiers: "+key.Modifiers.ToString());
-            //    //if (key.Modifiers == ConsoleModifiers.Control)
-            //    //{
-            //    //    if (key.Key == ConsoleKey.E)
-            //    //    {
-            //    //        Console.WriteLine("Menu open");
-            //    //    }
-            //    //}
-            //
-            //    if (key.Key == ConsoleKey.Escape)
-            //    {
-            //        Console.WriteLine("Menu open");
-            //    } else
-            //    {
-            //        if (key.Key == ConsoleKey.L)
-            //        {
-            //            if (((key.Modifiers & ConsoleModifiers.Control) != 0) && ((key.Modifiers & ConsoleModifiers.Shift) != 0))
-            //            {
-            //                Console.WriteLine("exit");
-            //            }
-            //        }
-            //    }
-            //}
-
             Console.WriteLine("CosmicLearn initializing...");
 
             if (!File.Exists("config.json"))
@@ -66,7 +37,6 @@ namespace CosmicLearn
                 JsonSerializerOptions options = new JsonSerializerOptions();
                 options.AllowTrailingCommas = true;
                 conf = JsonSerializer.Deserialize<Config>(ConfigJson, options);
-                //JsonNode config = JsonNode.Parse(ConfigJson);
             }
             catch (Exception e)
             {
@@ -77,16 +47,6 @@ namespace CosmicLearn
             var dB = new DB(conf.databaseAddress);
 
             dB.init(conf.databaseName);
-
-            //var CC = new CustomConsole();
-            //Console.Write("\ninput: ");
-            //CC.acceptInputUntilEnter("testing");
-            //
-            //Console.WriteLine("\n"+CC.getInput()+"\none key test");
-            //CC.clearInput();
-            //Console.Write("write 1 key: ");
-            //CC.acceptSingleInput();
-            //Console.WriteLine("\n" + CC.getInput() + "\ndone");
 
             var CC = new CustomConsole();
             bool exit = false;
@@ -183,8 +143,6 @@ namespace CosmicLearn
                         Console.WriteLine("Created new set with id " + setId + "!");
                         File.Delete("temp.txt");
                         Thread.Sleep(2000);
-
-                        //exit = true;
                     }
                 }
                 else if (CC.getConsoleKey() == ConsoleKey.Escape)

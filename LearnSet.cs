@@ -30,10 +30,6 @@ namespace CosmicLearn
                 Console.Clear();
                 if (sets.Count > 0)
                 {
-                    //if (sets.Count > 10)
-                    //{
-                    //    Console.WriteLine("Selection of more then 10 sets not supported yet. Showing regular selection.");
-                    //}
                     int pages = (int)decimal.Truncate(sets.Count / 10);
                     var selected = false;
 
@@ -59,7 +55,6 @@ namespace CosmicLearn
                         CC.clearInput();
 
                         Console.Write($"\nPage {page + 1} of {pages + 1}\nSelect set using arrow keys.\n");
-                        //TODO: arrow navigation
 
                         var sel = false;
                         var selectedSet = 0;
@@ -120,63 +115,7 @@ namespace CosmicLearn
                         }
                         Console.Clear();
                         WriteMode.Write(dB, CC, sets[(page * 10) + selectedSet], true);
-                        //WriteMode.Write(dB, CC, sets[selectedSet], true);
-                        //switch (inp)
-                        //{
-                        //    case ConsoleKey.D0:
-                        //        selected = true;
-                        //        WriteMode.Write(dB, CC, sets[(page * 10) + 0], true);
-                        //        break;
-                        //    case ConsoleKey.D1:
-                        //        selected = true;
-                        //        WriteMode.Write(dB, CC, sets[(page * 10) + 1], true);
-                        //        break;
-                        //    case ConsoleKey.D2:
-                        //        selected = true;
-                        //        WriteMode.Write(dB, CC, sets[(page * 10) + 2], true);
-                        //        break;
-                        //    case ConsoleKey.D3:
-                        //        selected = true;
-                        //        WriteMode.Write(dB, CC, sets[(page * 10) + 3], true);
-                        //        break;
-                        //    case ConsoleKey.D4:
-                        //        selected = true;
-                        //        WriteMode.Write(dB, CC, sets[(page * 10) + 4], true);
-                        //        break;
-                        //    case ConsoleKey.D5:
-                        //        selected = true;
-                        //        WriteMode.Write(dB, CC, sets[(page * 10) + 5], true);
-                        //        break;
-                        //    case ConsoleKey.D6:
-                        //        selected = true;
-                        //        WriteMode.Write(dB, CC, sets[(page * 10) + 6], true);
-                        //        break;
-                        //    case ConsoleKey.D7:
-                        //        selected = true;
-                        //        WriteMode.Write(dB, CC, sets[(page * 10) + 7], true);
-                        //        break;
-                        //    case ConsoleKey.D8:
-                        //        selected = true;
-                        //        WriteMode.Write(dB, CC, sets[(page * 10) + 8], true);
-                        //        break;
-                        //    case ConsoleKey.D9:
-                        //        selected = true;
-                        //        WriteMode.Write(dB, CC, sets[(page * 10) + 9], true);
-                        //        break;
-                        //    case ConsoleKey.LeftArrow:
-                        //        selected = false;
-                        //        page--;
-                        //        break;
-                        //    case ConsoleKey.RightArrow:
-                        //        selected = false;
-                        //        page++;
-                        //        break;
-                        //}
                     }
-                //Console.WriteLine("Selection not supported yet. Selecting 1st set.");
-                //Thread.Sleep(2000);
-                //Console.Clear();
-                //WriteMode.Write(dB, CC, sets[0], true);
             } else
                 {
                     Console.WriteLine("No sets are defined. Go back and make a new set.");
