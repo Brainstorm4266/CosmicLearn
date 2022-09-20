@@ -16,7 +16,9 @@ namespace CosmicLearn
 @"{
     ""configVersion"": 0,
     ""databaseAddress"": ""mongodb://localhost:27017"",
-    ""databaseName"": ""CosmicLearn""
+    ""databaseName"": ""CosmicLearn"",
+    ""databaseFile"": ""./CosmicLearn.db"",
+    ""useLiteDb"": true
 }
 ");
             }
@@ -44,7 +46,14 @@ namespace CosmicLearn
                 return;
             }
 
-            var dB = new DB(conf.databaseAddress);
+            DB dB;
+            if (conf.useLiteDb)
+            {
+                dB = new DB(conf.databaseFile, false);
+            } else
+            {
+                dB = new DB(conf.databaseAddress, true);
+            }
 
             dB.init(conf.databaseName);
 

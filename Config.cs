@@ -13,5 +13,7 @@ namespace CosmicLearn
         public int configVersion { get; set; }
         public string databaseAddress { get; set; }
         public string databaseName { get; set; }
+        public string databaseFile { get; set; }
+        public bool useLiteDb { get; set; }
     }
 }

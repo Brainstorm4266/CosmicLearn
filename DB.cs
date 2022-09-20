@@ -5,53 +5,115 @@ using System.Text;
 using System.Threading.Tasks;
 using MongoDB.Driver;
 using MongoDB.Bson;
+using LiteDB;
 
 namespace CosmicLearn
 {
     internal class DB
     {
-        MongoClient dbClient;
+        MongoClient mongoDbClient;
+        LiteDatabase liteDatabase;
         IMongoDatabase database;
         IMongoCollection<Types.Set> sets;
         IMongoCollection<Types.UserData> userData;
         IMongoCollection<Types.Counter> counters;
 
-        public DB(string server)
+        ILiteCollection<LiteDBTypes.Set> liteSets;
+        ILiteCollection<LiteDBTypes.UserData> liteUserData;
+        ILiteCollection<LiteDBTypes.Counter> liteCounters;
+
+        bool useMongoDB;
+        public DB(string server, bool isMongoDB)
         {
-            Console.WriteLine("Connecting to database "+server+"...");
-            dbClient = new MongoClient(server);
+            useMongoDB = isMongoDB;
+            if (isMongoDB)
+            {
+                Console.WriteLine("Connecting to database " + server + "...");
+                mongoDbClient = new MongoClient(server);
+            } else
+            {
+                Console.WriteLine("Reading database "+server+"...");
+                liteDatabase = new LiteDatabase(server);
+            }
         }
 
         public int newSet(Types.Set set)
         {
-            var counterLookup = counters.Find((x => ((x.collection == "sets") && (x.value == "setId"))));
-            var count = counterLookup.First();
+            if (useMongoDB)
+            {
+                var counterLookup = counters.Find((x => ((x.collection == "sets") && (x.value == "setId"))));
+                var count = counterLookup.First();
 
-            var sid = count.count;
-            set.setId = sid;
-            sets.InsertOne(set);
+                var sid = count.count;
+                set.setId = sid;
+                sets.InsertOne(set);
 
-            var builder = Builders<Types.Counter>.Filter;
-            FilterDefinition<Types.Counter> filter = builder.Eq("collection", "sets") & builder.Eq("value", "setId");
-            var update = Builders<Types.Counter>.Update
-                .Set(p => p.count, count.count + 1);
-            counters.UpdateOne(filter, update);
+                var builder = Builders<Types.Counter>.Filter;
+                FilterDefinition<Types.Counter> filter = builder.Eq("collection", "sets") & builder.Eq("value", "setId");
+                var update = Builders<Types.Counter>.Update
+                    .Set(p => p.count, count.count + 1);
+                counters.UpdateOne(filter, update);
 
-            return sid;
+                return sid;
+            } else
+            {
+                var counterLookup = liteCounters.Find(x => ((x.collection == "sets") && (x.value == "setId")));
+                var countbl = counterLookup.ToList();
+                var count = countbl[0];
+
+                var sid = count.count;
+                set.setId = sid;
+                var liteDBSet = new LiteDBTypes.Set {
+                    setId = set.setId,
+                    name = set.name,
+                    description = set.description,
+                    words = set.words,
+                    wordlang = set.wordlang,
+                    deflang = set.deflang
+                };
+                liteSets.Insert(liteDBSet);
+
+                count.count = count.count + 1;
+                liteCounters.Update(count);
+
+                return sid;
+            }
         }
 
         public List<Types.Set> getSets()
         {
-            var lookup = sets.Find(x => true);
-
-            if (lookup.CountDocuments() > 0)
+            if (useMongoDB)
             {
-                var list = lookup.ToList();
+                var lookup = sets.Find(x => true);
 
-                return list;
+                if (lookup.CountDocuments() > 0)
+                {
+                    var list = lookup.ToList();
+
+                    return list;
+                }
+                else
+                {
+                    return new List<Types.Set>();
+                }
             } else
             {
-                return new List<Types.Set>();
+                var liteDbSet = liteSets.FindAll().ToList();
+                var lst = new List<Types.Set>();
+                liteDbSet.ForEach(s =>
+                {
+                    var set = new Types.Set
+                    {
+                        setId = s.setId,
+                        name = s.name,
+                        description = s.description,
+                        words = s.words,
+                        wordlang = s.wordlang,
+                        deflang = s.deflang
+                    };
+                    lst.Add(set);
+                });
+                return lst;
             }
         }
 
@@ -59,84 +121,106 @@ namespace CosmicLearn
         {
             Console.WriteLine("Loading database " + databaseName + "...");
 
-            database = dbClient.GetDatabase(databaseName);
-
-            bool setsCollectionPresent = false;
-            bool userDataCollectionPresent = false;
-            bool counterCollectionPresent = false;
-
-            var collections = database.ListCollections().ToList();
-
-            foreach (var collection in collections)
+            if (useMongoDB)
             {
-                List<BsonElement> col = collection.ToList();
+                database = mongoDbClient.GetDatabase(databaseName);
+                bool setsCollectionPresent = false;
+                bool userDataCollectionPresent = false;
+                bool counterCollectionPresent = false;
 
-                col.ForEach(x =>
+                var collections = database.ListCollections().ToList();
+
+                foreach (var collection in collections)
                 {
-                    if (x.Name == "name")
+                    List<BsonElement> col = collection.ToList();
+
+                    col.ForEach(x =>
                     {
-                        if (x.Value == "sets")
+                        if (x.Name == "name")
                         {
-                            setsCollectionPresent = true;
+                            if (x.Value == "sets")
+                            {
+                                setsCollectionPresent = true;
+                            }
+                            else if (x.Value == "userData")
+                            {
+                                userDataCollectionPresent = true;
+                            }
+                            else if (x.Value == "counters")
+                            {
+                                counterCollectionPresent = true;
+                            }
                         }
-                        else if (x.Value == "userData")
-                        {
-                            userDataCollectionPresent = true;
-                        }
-                        else if (x.Value == "counters")
-                        {
-                            counterCollectionPresent = true;
-                        }
-                    }
-                });
-            }
+                    });
+                }
 
-            if (!counterCollectionPresent)
-            {
-                Console.WriteLine("Creating collection counters...");
-                database.CreateCollection("counters");
-                counters = database.GetCollection<Types.Counter>("counters");
-            } else
-            {
-                Console.WriteLine("Checking collection counters...");
-                counters = database.GetCollection<Types.Counter>("counters");
-            }
-
-            if (!setsCollectionPresent)
-            {
-                Console.WriteLine("Creating collection sets...");
-                database.CreateCollection("sets");
-                sets = database.GetCollection<Types.Set>("sets");
-
-                var setIdCounter = new Types.Counter();
-                setIdCounter.collection = "sets";
-                setIdCounter.value = "setId";
-                setIdCounter.count = 0;
-                counters.InsertOne(setIdCounter);
-            } else
-            {
-                Console.WriteLine("Checking collection sets...");
-                sets = database.GetCollection<Types.Set>("sets");
-
-                if (counters.CountDocuments(x => ((x.collection == "sets") && (x.value == "setId"))) == 0)
+                if (!counterCollectionPresent)
                 {
+                    Console.WriteLine("Creating collection counters...");
+                    database.CreateCollection("counters");
+                    counters = database.GetCollection<Types.Counter>("counters");
+                }
+                else
+                {
+                    Console.WriteLine("Checking collection counters...");
+                    counters = database.GetCollection<Types.Counter>("counters");
+                }
+
+                if (!setsCollectionPresent)
+                {
+                    Console.WriteLine("Creating collection sets...");
+                    database.CreateCollection("sets");
+                    sets = database.GetCollection<Types.Set>("sets");
+
                     var setIdCounter = new Types.Counter();
                     setIdCounter.collection = "sets";
                     setIdCounter.value = "setId";
                     setIdCounter.count = 0;
                     counters.InsertOne(setIdCounter);
                 }
-            }
+                else
+                {
+                    Console.WriteLine("Checking collection sets...");
+                    sets = database.GetCollection<Types.Set>("sets");
 
-            if (!userDataCollectionPresent)
-            {
-                Console.WriteLine("Creating collection userData...");
-                database.CreateCollection("userData");
-                userData = database.GetCollection<Types.UserData>("userData");
+                    if (counters.CountDocuments(x => ((x.collection == "sets") && (x.value == "setId"))) == 0)
+                    {
+                        var setIdCounter = new Types.Counter();
+                        setIdCounter.collection = "sets";
+                        setIdCounter.value = "setId";
+                        setIdCounter.count = 0;
+                        counters.InsertOne(setIdCounter);
+                    }
+                }
+
+                if (!userDataCollectionPresent)
+                {
+                    Console.WriteLine("Creating collection userData...");
+                    database.CreateCollection("userData");
+                    userData = database.GetCollection<Types.UserData>("userData");
+                }
+                else
+                {
+                    Console.WriteLine("Checking collection userData...");
+                    userData = database.GetCollection<Types.UserData>("userData");
+                }
             } else
             {
-                Console.WriteLine("Checking collection userData...");
-                userData = database.GetCollection<Types.UserData>("userData");
+                liteCounters = liteDatabase.GetCollection<LiteDBTypes.Counter>("counters");
+                liteSets = liteDatabase.GetCollection<LiteDBTypes.Set>("sets");
+                //Console.WriteLine(liteCounters.Exists(x => ((x.collection == "sets") && (x.value == "setId"))));
+                //Thread.Sleep(2000);
+                if (!liteCounters.Exists(x => ((x.collection == "sets") && (x.value == "setId"))))
+                {
+                    var counter = new LiteDBTypes.Counter
+                    {
+                        collection = "sets",
+                        value = "setId",
+                        count = 0
+                    };
+                    liteCounters.Insert(counter);
+                }
+                liteUserData = liteDatabase.GetCollection<LiteDBTypes.UserData>("userData");
             }
         }
     }
