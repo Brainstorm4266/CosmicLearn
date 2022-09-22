@@ -44,17 +44,8 @@ namespace CosmicLearn
             NewRound(dB, CC, words, revDef, 1, set, 0);
         }
 
-        public static void NewRound(DB dB, CustomConsole CC, List<Types.Word> words, bool revDef, int roundNum, Types.Set set, int correct)
+        public static void RenderTopbar(Types.Set set, int roundNum, int correct, int incorrect, int todo)
         {
-            var wordsNextRound = new List<Types.Word>();
-            var running = true;
-
-            var incorrect = 0;
-            var todo = words.Count;
-            var wtotal = words.Count;
-
-            var ran = new Random();
-
             Console.Write("CosmicLearn <WRITE MODE> " + set.name + "  Round: ");
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.Write(roundNum);
@@ -72,10 +63,24 @@ namespace CosmicLearn
             Console.Write(todo);
             Console.ForegroundColor = ConsoleColor.Gray;
             Console.WriteLine();
+        }
+
+        public static void NewRound(DB dB, CustomConsole CC, List<Types.Word> words, bool revDef, int roundNum, Types.Set set, int correct)
+        {
+            var wordsNextRound = new List<Types.Word>();
+            var running = true;
+
+            var incorrect = 0;
+            var todo = words.Count;
+            var wtotal = words.Count;
+
+            var ran = new Random();
+
+            RenderTopbar(set, roundNum, correct, incorrect, todo);
 
             bool showMotivationScreen = false;
 
-            while (running) //TODO: better mistake system
+            while (running) //TODO: better mistake system and fix when pressing enter in mistake practice prompt it'll mark next one as wrong too
             {
 
                 if (wtotal % 2 == 0)
@@ -104,23 +109,7 @@ namespace CosmicLearn
                     Console.WriteLine("Press any key to continue!");
                     Console.ReadKey(true);
                     Console.Clear();
-                    Console.Write("CosmicLearn <WRITE MODE> " + set.name + "  Round: ");
-                    Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.Write(roundNum);
-                    Console.ForegroundColor = ConsoleColor.Gray;
-                    Console.Write(", Correct: ");
-                    Console.ForegroundColor = ConsoleColor.Green;
-                    Console.Write(correct);
-                    Console.ForegroundColor = ConsoleColor.Gray;
-                    Console.Write(", Incorrect: ");
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.Write(incorrect);
-                    Console.ForegroundColor = ConsoleColor.Gray;
-                    Console.Write(", To go: ");
-                    Console.ForegroundColor = ConsoleColor.Cyan;
-                    Console.Write(todo);
-                    Console.ForegroundColor = ConsoleColor.Gray;
-                    Console.WriteLine();
+                    RenderTopbar(set, roundNum, correct, incorrect, todo);
                 }
 
                 if (words.Count > 0)
@@ -148,23 +137,7 @@ namespace CosmicLearn
                         Thread.Sleep(1000);
                         CC.clearInput();
                         Console.Clear();
-                        Console.Write("CosmicLearn <WRITE MODE> " + set.name + "  Round: ");
-                        Console.ForegroundColor = ConsoleColor.Yellow;
-                        Console.Write(roundNum);
-                        Console.ForegroundColor = ConsoleColor.Gray;
-                        Console.Write(", Correct: ");
-                        Console.ForegroundColor = ConsoleColor.Green;
-                        Console.Write(correct);
-                        Console.ForegroundColor = ConsoleColor.Gray;
-                        Console.Write(", Incorrect: ");
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.Write(incorrect);
-                        Console.ForegroundColor = ConsoleColor.Gray;
-                        Console.Write(", To go: ");
-                        Console.ForegroundColor = ConsoleColor.Cyan;
-                        Console.Write(todo);
-                        Console.ForegroundColor = ConsoleColor.Gray;
-                        Console.WriteLine();
+                        RenderTopbar(set, roundNum, correct, incorrect, todo);
                     }
                     else
                     {
@@ -213,23 +186,7 @@ namespace CosmicLearn
                             Thread.Sleep(1000);
                         }
                         Console.Clear();
-                        Console.Write("CosmicLearn <WRITE MODE> " + set.name + "  Round: ");
-                        Console.ForegroundColor = ConsoleColor.Yellow;
-                        Console.Write(roundNum);
-                        Console.ForegroundColor = ConsoleColor.Gray;
-                        Console.Write(", Correct: ");
-                        Console.ForegroundColor = ConsoleColor.Green;
-                        Console.Write(correct);
-                        Console.ForegroundColor = ConsoleColor.Gray;
-                        Console.Write(", Incorrect: ");
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.Write(incorrect);
-                        Console.ForegroundColor = ConsoleColor.Gray;
-                        Console.Write(", To go: ");
-                        Console.ForegroundColor = ConsoleColor.Cyan;
-                        Console.Write(todo);
-                        Console.ForegroundColor = ConsoleColor.Gray;
-                        Console.WriteLine();
+                        RenderTopbar(set, roundNum, correct, incorrect, todo);
                     }
                 }
                 else
