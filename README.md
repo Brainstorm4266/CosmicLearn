@@ -1,6 +1,7 @@
 # CosmicLearn
 [![Compile CosmicLearn (Linux)](https://github.com/Brainstorm4266/CosmicLearn/actions/workflows/compile-linux.yml/badge.svg)](https://github.com/Brainstorm4266/CosmicLearn/actions/workflows/compile-linux.yml)
 [![Compile CosmicLearn (Windows)](https://github.com/Brainstorm4266/CosmicLearn/actions/workflows/compile-windows.yml/badge.svg)](https://github.com/Brainstorm4266/CosmicLearn/actions/workflows/compile-windows.yml)
+
 A quick learning program I made in ~3 days, as a kind of Quizlet replacement.
 
 ## Setup
