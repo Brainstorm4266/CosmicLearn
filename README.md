@@ -8,7 +8,7 @@ A quick learning program I made in ~3 days, as a kind of Quizlet replacement.
 I recommend downloading it from the [releases tab](https://github.com/Brainstorm4266/CosmicLearn/releases/), but if you want to, you can also build CosmicLearn by yourself.
 To build it yourself, you must have Visual Studio (I used version 2022) with .NET Core (version 6) support, or just use msbuild.
 
-For unstable builds, you can go [here](https://github.com/Brainstorm4266/CosmicLearn/actions/workflows/compile-windows.yml) for Windows builds and [here](https://github.com/Brainstorm4266/CosmicLearn/actions/workflows/compile-linux.yml) for Linux builds. Select the latest, non-failed build.
+For unstable builds, you can go [here](https://github.com/Brainstorm4266/CosmicLearn/actions/workflows/compile-windows.yml) for Windows builds and [here](https://github.com/Brainstorm4266/CosmicLearn/actions/workflows/compile-linux.yml) for Linux builds. Select the latest, non-failed build. Then download the artifact.
 
 ## Configuration
 You may configure CosmicLearn by using the `config.json` file in the location where you unpacked CosmicLearn.
