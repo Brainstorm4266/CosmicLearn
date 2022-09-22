@@ -7,8 +7,8 @@ namespace CosmicLearn.LiteDBTypes
         public Counter() { }
 
         public Int32 _id { get; set; }
-        public string collection { get; set; }
-        public string value { get; set; }
+        public string collection { get; set; } = "";
+        public string value { get; set; } = "";
         public int count { get; set; }
 
         public static explicit operator Types.Counter(LiteDBTypes.Counter c) => new Types.Counter { 
