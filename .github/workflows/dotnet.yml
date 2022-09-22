@@ -27,4 +27,6 @@ jobs:
       run: dotnet publish
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v3.1.0
-
+      with:
+        name: CosmicLearn
+        path: /home/runner/work/CosmicLearn/CosmicLearn/bin/Debug/net6.0/publish/
