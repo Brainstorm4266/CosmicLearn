@@ -13,3 +13,4 @@ For unstable builds, you can go [here](https://github.com/Brainstorm4266/CosmicL
 ## Configuration
 You may configure CosmicLearn by using the `config.json` file in the location where you unpacked CosmicLearn.
 This file is generated automatically when you start the program.
+Currently, LightDB and MongoDB are supported.
