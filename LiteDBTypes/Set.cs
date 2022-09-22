@@ -11,5 +11,25 @@ namespace CosmicLearn.LiteDBTypes
         public List<Types.Word> words { get; set; }
         public string wordlang { get; set; }
         public string deflang { get; set; }
+
+        public static explicit operator Types.Set(LiteDBTypes.Set s) => new Types.Set
+        {
+            setId = s.setId,
+            name = s.name,
+            description = s.description,
+            words = s.words,
+            wordlang = s.wordlang,
+            deflang = s.deflang,
+        };
+
+        public static implicit operator LiteDBTypes.Set(Types.Set s) => new LiteDBTypes.Set
+        {
+            setId = s.setId,
+            name = s.name,
+            description = s.description,
+            words = s.words,
+            wordlang = s.wordlang,
+            deflang = s.deflang,
+        };
     }
 }

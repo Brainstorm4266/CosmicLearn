@@ -63,15 +63,7 @@ namespace CosmicLearn
 
                 var sid = count.count;
                 set.setId = sid;
-                var liteDBSet = new LiteDBTypes.Set {
-                    setId = set.setId,
-                    name = set.name,
-                    description = set.description,
-                    words = set.words,
-                    wordlang = set.wordlang,
-                    deflang = set.deflang
-                };
-                liteSets.Insert(liteDBSet);
+                liteSets.Insert(set);
 
                 count.count = count.count + 1;
                 liteCounters.Update(count);
@@ -102,16 +94,7 @@ namespace CosmicLearn
                 var lst = new List<Types.Set>();
                 liteDbSet.ForEach(s =>
                 {
-                    var set = new Types.Set
-                    {
-                        setId = s.setId,
-                        name = s.name,
-                        description = s.description,
-                        words = s.words,
-                        wordlang = s.wordlang,
-                        deflang = s.deflang
-                    };
-                    lst.Add(set);
+                    lst.Add((Types.Set)s);
                 });
                 return lst;
             }
