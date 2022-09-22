@@ -11,16 +11,16 @@ namespace CosmicLearn
 {
     internal class DB
     {
-        MongoClient mongoDbClient;
-        LiteDatabase liteDatabase;
-        IMongoDatabase database;
-        IMongoCollection<Types.Set> sets;
-        IMongoCollection<Types.UserData> userData;
-        IMongoCollection<Types.Counter> counters;
+        MongoClient? mongoDbClient;
+        LiteDatabase? liteDatabase;
+        IMongoDatabase? database;
+        IMongoCollection<Types.Set>? sets;
+        IMongoCollection<Types.UserData>? userData;
+        IMongoCollection<Types.Counter>? counters;
 
-        ILiteCollection<LiteDBTypes.Set> liteSets;
-        ILiteCollection<LiteDBTypes.UserData> liteUserData;
-        ILiteCollection<LiteDBTypes.Counter> liteCounters;
+        ILiteCollection<LiteDBTypes.Set>? liteSets;
+        ILiteCollection<LiteDBTypes.UserData>? liteUserData;
+        ILiteCollection<LiteDBTypes.Counter>? liteCounters;
 
         bool useMongoDB;
         public DB(string server, bool isMongoDB)
@@ -41,6 +41,10 @@ namespace CosmicLearn
         {
             if (useMongoDB)
             {
+                if ((sets is null) || (counters is null))
+                {
+                    throw new Exception();
+                }
                 var counterLookup = counters.Find((x => ((x.collection == "sets") && (x.value == "setId"))));
                 var count = counterLookup.First();
 
@@ -57,6 +61,10 @@ namespace CosmicLearn
                 return sid;
             } else
             {
+                if ((liteSets is null) || (liteCounters is null))
+                {
+                    throw new Exception();
+                }
                 var counterLookup = liteCounters.Find(x => ((x.collection == "sets") && (x.value == "setId")));
                 var countbl = counterLookup.ToList();
                 var count = countbl[0];
@@ -90,6 +98,10 @@ namespace CosmicLearn
                 }
             } else
             {
+                if (liteSets is null)
+                {
+                    throw new Exception();
+                }
                 var liteDbSet = liteSets.FindAll().ToList();
                 var lst = new List<Types.Set>();
                 liteDbSet.ForEach(s =>
@@ -106,6 +118,10 @@ namespace CosmicLearn
 
             if (useMongoDB)
             {
+                if (mongoDbClient is null)
+                {
+                    throw new Exception();
+                }
                 database = mongoDbClient.GetDatabase(databaseName);
                 bool setsCollectionPresent = false;
                 bool userDataCollectionPresent = false;
@@ -189,6 +205,10 @@ namespace CosmicLearn
                 }
             } else
             {
+                if (liteDatabase is null)
+                {
+                    throw new Exception();
+                }
                 liteCounters = liteDatabase.GetCollection<LiteDBTypes.Counter>("counters");
                 liteSets = liteDatabase.GetCollection<LiteDBTypes.Set>("sets");
                 //Console.WriteLine(liteCounters.Exists(x => ((x.collection == "sets") && (x.value == "setId"))));

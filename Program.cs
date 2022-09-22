@@ -32,7 +32,7 @@ namespace CosmicLearn
                 return;
             }
 
-            Config conf;
+            Config? conf;
 
             try
             {
@@ -40,9 +40,14 @@ namespace CosmicLearn
                 options.AllowTrailingCommas = true;
                 conf = JsonSerializer.Deserialize<Config>(ConfigJson, options);
             }
-            catch (Exception e)
+            catch
             {
                 Console.WriteLine("Error: Got exception while loading file. The config.json file is probably incorrectly formatted.");
+                return;
+            }
+            if (conf is null)
+            {
+                Console.WriteLine("Error: Config is null. Report this to the developers, this is a bug.");
                 return;
             }
 

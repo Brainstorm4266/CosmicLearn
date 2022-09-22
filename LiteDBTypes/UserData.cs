@@ -6,8 +6,8 @@ namespace CosmicLearn.LiteDBTypes
     {
         // There is only 1 user, because this is a local app. Not a web app.
         public Int32 _id { get; set; }
-        public string name { get; set; }
-        public Types.UserSetProgress[] progresses { get; set; }
+        public string name { get; set; } = "";
+        public Types.UserSetProgress[] progresses { get; set; } = new Types.UserSetProgress[0];
 
         public static explicit operator Types.UserData(LiteDBTypes.UserData ud) => new Types.UserData
         {
