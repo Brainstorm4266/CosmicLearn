@@ -16,9 +16,18 @@ namespace CosmicLearn
             ' ','\t'
         };
 
-        public static bool isAMistake(string word, string def)
+        public static bool isAMistake(string word, string def, Types.UserSetProgress usp)
         {
-            return word == def;
+            if (usp.setSettings.strictMode)
+            {
+                return word == def;
+            } else
+            {
+                //TODO: add custom algorithm to see if correct or not
+                //int mistakes = 0;
+                //int mistakeThreshold = 3;
+                return word == def;
+            }
         }
 
         public static List<char> checkSpecialChars(string word)
@@ -207,7 +216,7 @@ namespace CosmicLearn
                         Console.Clear();
                         return;
                     }
-                    if (isAMistake(CC.getInput(), def))
+                    if (isAMistake(CC.getInput(), def, usp))
                     {
                         Console.ForegroundColor = ConsoleColor.Green;
                         Console.Write("\nCorrect!");
@@ -251,25 +260,28 @@ namespace CosmicLearn
                             usp.remainingNumber--;
                             usp.incorrectNumber++;
                             writeDatabase(dB, set, usp);
-                            Console.Write("\nType the word again, for practice.\nWord: " + def);
-                            Console.SetCursorPosition(0, CPos);
-                            int i = Console.BufferWidth;
+                            if (usp.setSettings.showCorrectionDialogue)
+                            {
+                                Console.Write("\nType the word again, for practice.\nWord: " + def);
+                                Console.SetCursorPosition(0, CPos);
+                                int i = Console.BufferWidth;
 
-                            for (int j = 0; j < i; j++)
-                            {
-                                Console.Write(" ");
+                                for (int j = 0; j < i; j++)
+                                {
+                                    Console.Write(" ");
+                                }
+                                Console.SetCursorPosition(0, CPos - 1);
+                                if (CC.acceptInputSpecificInput(def, word, def))
+                                {
+                                    // save
+                                    usp.currentWord = wordv;
+                                    usp.hasExited = true;
+                                    writeDatabase(dB, set, usp);
+                                    Console.Clear();
+                                    return;
+                                }
+                                CC.clearInput();
                             }
-                            Console.SetCursorPosition(0, CPos - 1);
-                            if (CC.acceptInputSpecificInput(def, word, def))
-                            {
-                                // save
-                                usp.currentWord = wordv;
-                                usp.hasExited = true;
-                                writeDatabase(dB, set, usp);
-                                Console.Clear();
-                                return;
-                            }
-                            CC.clearInput();
                             Thread.Sleep(1000);
                         }
                         Console.Clear();

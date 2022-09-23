@@ -87,7 +87,7 @@ namespace CosmicLearn
             while (!exit)
             {
                 Console.Clear();
-                Console.WriteLine("CosmicLearn v1.1.0-DEV\n" +
+                Console.WriteLine("CosmicLearn v1.2.0-DEV\n" +
                     "Options:\n" +
                     "[C] Import/Create new set\n" +
                     "[E] Edit set\n" +

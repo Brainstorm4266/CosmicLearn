@@ -71,7 +71,7 @@ namespace CosmicLearn
             List<char> specialChars = WriteMode.checkSpecialChars(def);
             int currSpecialChar = 0;
             bool specialSelectMode = false;
-            if (specialChars.Count > 0)
+            if (specialChars.Count > 0) //TODO: add bait
             {
                 h = Console.CursorTop;
                 l = Console.CursorLeft;
@@ -326,7 +326,7 @@ namespace CosmicLearn
             bool specialSelectMode = false;
             List<char> specialChars = WriteMode.checkSpecialChars(def);
             int currSpecialChar = 0;
-            if (specialChars.Count > 0)
+            if (specialChars.Count > 0) //TODO: add bait
             {
                 h = Console.CursorTop;
                 l = Console.CursorLeft;
