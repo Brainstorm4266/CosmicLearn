@@ -80,7 +80,7 @@ namespace CosmicLearn
 
             bool showMotivationScreen = false;
 
-            while (running) //TODO: better mistake system and fix when pressing enter in mistake practice prompt it'll mark next one as wrong too
+            while (running) //TODO: better mistake system
             {
 
                 if (wtotal % 2 == 0)

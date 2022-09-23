@@ -62,11 +62,13 @@ namespace CosmicLearn
 
         public bool acceptInputSpecificInput(string inp, string word, string def)
         {
+            int h;
+            int l;
+            while (Console.KeyAvailable)
+                Console.ReadKey(true); // flush stdin
             Console.Write("\n"+"> "+input);
             ConsoleKeyInfo key;
             List<char> specialChars = WriteMode.checkSpecialChars(def);
-            int h;
-            int l;
             int currSpecialChar = 0;
             bool specialSelectMode = false;
             if (specialChars.Count > 0)
@@ -314,13 +316,15 @@ namespace CosmicLearn
 
         public bool acceptInputUntilEnterWriteAnswer(string word, string def)
         {
+            int h;
+            int l;
+            while (Console.KeyAvailable)
+                Console.ReadKey(true); // flush stdin
             Console.Write(input);
             ConsoleKeyInfo key;
             bool enterPressed = false;
             bool specialSelectMode = false;
             List<char> specialChars = WriteMode.checkSpecialChars(def);
-            int h;
-            int l;
             int currSpecialChar = 0;
             if (specialChars.Count > 0)
             {
