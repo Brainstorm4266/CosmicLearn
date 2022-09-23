@@ -323,7 +323,7 @@
 
                             dB.setUserData(userData);
                         }
-                        WriteMode.Write(dB, CC, sets[(page * 10) + selectedSet]);
+                        WriteMode.Write(dB, CC, sets[(page * 10) + selectedSet], (page * 10) + selectedSet);
                     }
             } else
                 {

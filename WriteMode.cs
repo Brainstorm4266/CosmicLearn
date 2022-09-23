@@ -75,7 +75,7 @@ namespace CosmicLearn
             Console.SetCursorPosition(l, h);
         }
 
-        public static void Write(DB dB, CustomConsole CC, Types.Set set)
+        public static void Write(DB dB, CustomConsole CC, Types.Set set, int setId)
         {
             var udata = dB.getUserData();
             if (udata is null)
@@ -86,8 +86,9 @@ namespace CosmicLearn
             Types.UserSetProgress upr = new Types.UserSetProgress();
             foreach (var prog in udata.progresses)
             {
-                if (prog.setId == set.setId)
+                if (prog.setId == setId)
                 {
+                    Console.WriteLine("Setting prog with setId "+prog.setId+", current setId is "+set.setId);
                     upr = prog;
                 }
             }
@@ -183,9 +184,14 @@ namespace CosmicLearn
                     var wordv = usp.wordsRemaining[ran.Next(usp.wordsRemaining.Count)];
                     if (usp.hasExited)
                     {
+                        int h = Console.CursorTop;
+                        int l = Console.CursorLeft;
+                        Console.SetCursorPosition(0, Console.BufferHeight - 4);
                         wordv = usp.currentWord;
                         usp.hasExited = false;
                         writeDatabase(dB, set, usp);
+                        Console.Write("Override");
+                        Console.SetCursorPosition(l, h);
                     }
                     var word = (usp.setSettings.reverseDefintions ? wordv.definition : wordv.word);
                     var def = (usp.setSettings.reverseDefintions ? wordv.word : wordv.definition);
@@ -257,6 +263,9 @@ namespace CosmicLearn
                             if (CC.acceptInputSpecificInput(def, word, def))
                             {
                                 // save
+                                usp.currentWord = wordv;
+                                usp.hasExited = true;
+                                writeDatabase(dB, set, usp);
                                 Console.Clear();
                                 return;
                             }
