@@ -1,14 +1,182 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace CosmicLearn
+﻿namespace CosmicLearn
 {
     internal class LearnSet
     {
-        public static void run(DB dB, CustomConsole CC)
+        public static void setSettings(DB dB, CustomConsole CC, Types.Set set)
+        {
+            CC.clearInput();
+            ConsoleKey[] whitelist = { ConsoleKey.Y, ConsoleKey.N };
+            Console.Write("Would you like to edit set settings before continuing? (y/n) ");
+            CC.acceptSingleInput(whitelist, false);
+            if (CC.getInput().ToLower() == "y") //TODO: get user data to pre-set these values
+            {
+                var userData = dB.getUserData();
+                if (userData is null)
+                {
+                    Console.Write("Failed to get data! (UserData not found). Try restarting CosmicLearn");
+                    Thread.Sleep(10000);
+                    return;
+                }
+                else
+                {
+                    bool setSettings = false;
+                    for (int o = 0; o < userData.progresses.Count; o++)
+                    {
+                        var setProgress = userData.progresses[o];
+                        if (setProgress.setId == set.setId)
+                        {
+                            setSettings = true;
+                        }
+                    }
+
+                    if (!setSettings)
+                    {
+                        // make new data
+                        userData.progresses.Add(new Types.UserSetProgress
+                        {
+                            setId = set.setId,
+                            setSettings = new Types.SetSettings(),
+                            rounds = 0,
+                            correctNumber = 0,
+                            incorrectNumber = 0,
+                            remainingNumber = 0,
+                            currentWord = new Types.Word(),
+                            wordsCorrect = new List<Types.Word>(),
+                            wordsIncorrect = new List<Types.Word>(),
+                            wordsRemaining = new List<Types.Word>(),
+                            setOngoing = false
+                        });
+                    }
+
+                    dB.setUserData(userData);
+                }
+                CC.clearInput();
+                Console.Clear();
+                bool done = false;
+                int selectedOption = 0;
+                var settings = new Types.SetSettings();
+                foreach (var prog in userData.progresses)
+                {
+                    if (prog.setId == set.setId)
+                    {
+                        settings = prog.setSettings;
+                    }
+                }
+                bool saveSettings = false;
+                while (!done)
+                {
+                    Console.Clear();
+                    string[] options = {
+                        "[] Reverse Definitions: "+(settings.reverseDefintions? "Yes":"No"),
+                        "[] Strict Mode: "+(settings.strictMode? "Yes":"No"),
+                        "[] Show correction dialogue: "+(settings.showCorrectionDialogue? "Yes":"No"),
+                        "[] Save settings",
+                        "[] Discard settings"
+                    };
+                    for (int i = 0; i < options.Length; i++)
+                    {
+                        if (selectedOption == i)
+                        {
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            Console.Write(options[i] + "\n");
+                            Console.ForegroundColor = ConsoleColor.Gray;
+                        } else
+                        {
+                            Console.Write(options[i]+"\n");
+                        }
+                    }
+                    var key = Console.ReadKey(true);
+                    switch (key.Key)
+                    {
+                        case ConsoleKey.DownArrow:
+                            if (selectedOption < options.Length)
+                            {
+                                selectedOption++;
+                            }
+                            break;
+                        case ConsoleKey.UpArrow:
+                            if (selectedOption != 0)
+                            {
+                                selectedOption--;
+                            }
+                            break;
+                        case ConsoleKey.Spacebar:
+                            switch (selectedOption)
+                            {
+                                case 0:
+                                    settings.reverseDefintions = settings.reverseDefintions ? false : true;
+                                    break;
+                                case 1:
+                                    settings.strictMode = settings.strictMode ? false : true;
+                                    break;
+                                case 2:
+                                    settings.showCorrectionDialogue = settings.showCorrectionDialogue ? false : true;
+                                    break;
+                                case 3:
+                                    saveSettings = true;
+                                    done = true;
+                                    break;
+                                case 4:
+                                    saveSettings = false;
+                                    done = true;
+                                    break;
+                            }
+                            break;
+                    }
+                }
+                if (saveSettings)
+                {
+                    userData = dB.getUserData();
+                    if (userData is null)
+                    {
+                        Console.Write("Failed saving data! (UserData not found). Try restarting CosmicLearn");
+                        Thread.Sleep(10000);
+                        return;
+                    } else
+                    {
+                        bool setSettings = false;
+                        for (int i = 0; i < userData.progresses.Count; i++)
+                        {
+                            var setProgress = userData.progresses[i];
+                            if (setProgress.setId == set.setId)
+                            {
+                                userData.progresses[i].setSettings = settings;
+                                setSettings = true;
+                            }
+                        }
+
+                        if (!setSettings)
+                        {
+                            // make new data
+                            userData.progresses.Add(new Types.UserSetProgress
+                            {
+                                setId = set.setId,
+                                setSettings = new Types.SetSettings(),
+                                rounds = 0,
+                                correctNumber = 0,
+                                incorrectNumber = 0,
+                                remainingNumber = 0,
+                                currentWord = new Types.Word(),
+                                wordsCorrect = new List<Types.Word>(),
+                                wordsIncorrect = new List<Types.Word>(),
+                                wordsRemaining = new List<Types.Word>(),
+                                setOngoing = false
+                            });
+                        }
+
+                        dB.setUserData(userData);
+                    }
+                }
+                Console.Clear();
+            } else if (CC.getInput().ToLower() == "n")
+            {
+                CC.clearInput();
+                Console.Clear();
+                return;
+            }
+        }
+
+        public static void run(DB dB, CustomConsole CC) //TODO: set settings
         {
             Console.Clear();
             Console.WriteLine("CosmicLearn\n" +
@@ -114,7 +282,48 @@ namespace CosmicLearn
                             }
                         }
                         Console.Clear();
-                        WriteMode.Write(dB, CC, sets[(page * 10) + selectedSet], true);
+                        setSettings(dB, CC, sets[(page * 10) + selectedSet]);
+                        var userData = dB.getUserData();
+                        if (userData is null)
+                        {
+                            Console.Write("Failed to get data! (UserData not found). Try restarting CosmicLearn");
+                            Thread.Sleep(10000);
+                            return;
+                        }
+                        else
+                        {
+                            bool setSettings = false;
+                            for (int o = 0; o < userData.progresses.Count; o++)
+                            {
+                                var setProgress = userData.progresses[o];
+                                if (setProgress.setId == sets[(page * 10) + selectedSet].setId)
+                                {
+                                    setSettings = true;
+                                }
+                            }
+
+                            if (!setSettings)
+                            {
+                                // make new data
+                                userData.progresses.Add(new Types.UserSetProgress
+                                {
+                                    setId = sets[(page * 10) + selectedSet].setId,
+                                    setSettings = new Types.SetSettings(),
+                                    rounds = 0,
+                                    correctNumber = 0,
+                                    incorrectNumber = 0,
+                                    remainingNumber = 0,
+                                    currentWord = new Types.Word(),
+                                    wordsCorrect = new List<Types.Word>(),
+                                    wordsIncorrect = new List<Types.Word>(),
+                                    wordsRemaining = new List<Types.Word>(),
+                                    setOngoing = false
+                                });
+                            }
+
+                            dB.setUserData(userData);
+                        }
+                        WriteMode.Write(dB, CC, sets[(page * 10) + selectedSet], (page * 10) + selectedSet);
                     }
             } else
                 {

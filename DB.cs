@@ -37,6 +37,93 @@ namespace CosmicLearn
             }
         }
 
+        public Types.UserData? getUserData()
+        {
+            if (useMongoDB)
+            {
+                if (userData is null)
+                {
+                    throw new Exception();
+                }
+                var lookup = userData.Find(x => true);
+                if (lookup.CountDocuments() == 0)
+                {
+                    return null;
+                } else
+                {
+                    return lookup.First();
+                }
+            } else
+            {
+                if (liteUserData is null)
+                {
+                    throw new Exception();
+                }
+                var lookup = liteUserData.Find(x => true);
+                if (lookup.Count() == 0)
+                {
+                    return null;
+                } else
+                {
+                    return (Types.UserData?)lookup.First();
+                }
+            }
+        }
+
+        public void setUserData(Types.UserData ud)
+        {
+            if (useMongoDB)
+            {
+                if (userData is null)
+                {
+                    throw new Exception();
+                }
+                userData.DeleteMany("{}");
+                userData.InsertOne(ud);
+            } else
+            {
+                if (liteUserData is null)
+                {
+                    throw new Exception();
+                }
+                liteUserData.DeleteAll();
+                liteUserData.Insert(ud);
+            }
+        }
+
+        public string? getUsername(string uname)
+        {
+            if (useMongoDB)
+            {
+                if (userData is null)
+                {
+                    throw new Exception();
+                }
+                var lookup = userData.Find(x => true);
+                if (lookup.CountDocuments() == 0)
+                {
+                    return null;
+                } else
+                {
+                    return lookup.ToList()[0].name;
+                }
+            } else
+            {
+                if (liteUserData is null)
+                {
+                    throw new Exception();
+                }
+                var lookup = liteUserData.Find(x => true);
+                if (lookup.Count() == 0)
+                {
+                    return null;
+                } else
+                {
+                    return lookup.ToList()[0].name;
+                }
+            }
+        }
+
         public int newSet(Types.Set set)
         {
             if (useMongoDB)
@@ -211,8 +298,6 @@ namespace CosmicLearn
                 }
                 liteCounters = liteDatabase.GetCollection<LiteDBTypes.Counter>("counters");
                 liteSets = liteDatabase.GetCollection<LiteDBTypes.Set>("sets");
-                //Console.WriteLine(liteCounters.Exists(x => ((x.collection == "sets") && (x.value == "setId"))));
-                //Thread.Sleep(2000);
                 if (!liteCounters.Exists(x => ((x.collection == "sets") && (x.value == "setId"))))
                 {
                     var counter = new LiteDBTypes.Counter
