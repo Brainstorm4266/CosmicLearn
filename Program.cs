@@ -63,11 +63,31 @@ namespace CosmicLearn
             dB.init(conf.databaseName);
 
             var CC = new CustomConsole();
+
+            // initial setup
+
+            if (dB.getUserData() is null)
+            {
+                // start initial setup here
+                Console.Clear();
+                Console.WriteLine("Welcome! It seems it's your first time using CosmicLearn. Let's get you set up.");
+                var udata = new Types.UserData();
+                Console.WriteLine("What would you like me to call you? (Type your answer and press enter)");
+                Console.Write("> ");
+                CC.acceptInputUntilEnter();
+                Console.Write("\nOk, that should be it for now! (Saving...)");
+                udata.name = CC.getInput();
+                CC.clearInput();
+                dB.setUserData(udata);
+                Console.Write("\nDone saving! Have fun!");
+                Thread.Sleep(1000);
+            }
+
             bool exit = false;
             while (!exit)
             {
                 Console.Clear();
-                Console.WriteLine("CosmicLearn v1.0.0\n" +
+                Console.WriteLine("CosmicLearn v1.1.0-DEV\n" +
                     "Options:\n" +
                     "[C] Import/Create new set\n" +
                     "[E] Edit set\n" +

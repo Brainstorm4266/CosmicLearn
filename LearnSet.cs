@@ -2,19 +2,66 @@
 {
     internal class LearnSet
     {
-        public static void setSettings(DB dB, CustomConsole CC)
+        public static void setSettings(DB dB, CustomConsole CC, Types.Set set)
         {
             CC.clearInput();
             ConsoleKey[] whitelist = { ConsoleKey.Y, ConsoleKey.N };
             Console.Write("Would you like to edit set settings before continuing? (y/n) ");
             CC.acceptSingleInput(whitelist, false);
-            if (CC.getInput().ToLower() == "y")
+            if (CC.getInput().ToLower() == "y") //TODO: get user data to pre-set these values
             {
+                var userData = dB.getUserData();
+                if (userData is null)
+                {
+                    Console.Write("Failed to get data! (UserData not found). Try restarting CosmicLearn");
+                    Thread.Sleep(10000);
+                    return;
+                }
+                else
+                {
+                    bool setSettings = false;
+                    for (int o = 0; o < userData.progresses.Count; o++)
+                    {
+                        var setProgress = userData.progresses[o];
+                        if (setProgress.setId == set.setId)
+                        {
+                            setSettings = true;
+                        }
+                    }
+
+                    if (!setSettings)
+                    {
+                        // make new data
+                        userData.progresses.Add(new Types.UserSetProgress
+                        {
+                            setId = set.setId,
+                            setSettings = new Types.SetSettings(),
+                            rounds = 0,
+                            correctNumber = 0,
+                            incorrectNumber = 0,
+                            remainingNumber = 0,
+                            currentWord = new Types.Word(),
+                            wordsCorrect = new List<Types.Word>(),
+                            wordsIncorrect = new List<Types.Word>(),
+                            wordsRemaining = new List<Types.Word>(),
+                            setOngoing = false
+                        });
+                    }
+
+                    dB.setUserData(userData);
+                }
                 CC.clearInput();
                 Console.Clear();
                 bool done = false;
                 int selectedOption = 0;
                 var settings = new Types.SetSettings();
+                foreach (var prog in userData.progresses)
+                {
+                    if (prog.setId == set.setId)
+                    {
+                        settings = prog.setSettings;
+                    }
+                }
                 bool saveSettings = false;
                 while (!done)
                 {
@@ -79,7 +126,46 @@
                 }
                 if (saveSettings)
                 {
+                    userData = dB.getUserData();
+                    if (userData is null)
+                    {
+                        Console.Write("Failed saving data! (UserData not found). Try restarting CosmicLearn");
+                        Thread.Sleep(10000);
+                        return;
+                    } else
+                    {
+                        bool setSettings = false;
+                        for (int i = 0; i < userData.progresses.Count; i++)
+                        {
+                            var setProgress = userData.progresses[i];
+                            if (setProgress.setId == set.setId)
+                            {
+                                userData.progresses[i].setSettings = settings;
+                                setSettings = true;
+                            }
+                        }
 
+                        if (!setSettings)
+                        {
+                            // make new data
+                            userData.progresses.Add(new Types.UserSetProgress
+                            {
+                                setId = set.setId,
+                                setSettings = new Types.SetSettings(),
+                                rounds = 0,
+                                correctNumber = 0,
+                                incorrectNumber = 0,
+                                remainingNumber = 0,
+                                currentWord = new Types.Word(),
+                                wordsCorrect = new List<Types.Word>(),
+                                wordsIncorrect = new List<Types.Word>(),
+                                wordsRemaining = new List<Types.Word>(),
+                                setOngoing = false
+                            });
+                        }
+
+                        dB.setUserData(userData);
+                    }
                 }
                 Console.Clear();
             } else if (CC.getInput().ToLower() == "n")
@@ -196,8 +282,48 @@
                             }
                         }
                         Console.Clear();
-                        setSettings(dB, CC);
-                        WriteMode.Write(dB, CC, sets[(page * 10) + selectedSet], true);
+                        setSettings(dB, CC, sets[(page * 10) + selectedSet]);
+                        var userData = dB.getUserData();
+                        if (userData is null)
+                        {
+                            Console.Write("Failed to get data! (UserData not found). Try restarting CosmicLearn");
+                            Thread.Sleep(10000);
+                            return;
+                        }
+                        else
+                        {
+                            bool setSettings = false;
+                            for (int o = 0; o < userData.progresses.Count; o++)
+                            {
+                                var setProgress = userData.progresses[o];
+                                if (setProgress.setId == sets[(page * 10) + selectedSet].setId)
+                                {
+                                    setSettings = true;
+                                }
+                            }
+
+                            if (!setSettings)
+                            {
+                                // make new data
+                                userData.progresses.Add(new Types.UserSetProgress
+                                {
+                                    setId = sets[(page * 10) + selectedSet].setId,
+                                    setSettings = new Types.SetSettings(),
+                                    rounds = 0,
+                                    correctNumber = 0,
+                                    incorrectNumber = 0,
+                                    remainingNumber = 0,
+                                    currentWord = new Types.Word(),
+                                    wordsCorrect = new List<Types.Word>(),
+                                    wordsIncorrect = new List<Types.Word>(),
+                                    wordsRemaining = new List<Types.Word>(),
+                                    setOngoing = false
+                                });
+                            }
+
+                            dB.setUserData(userData);
+                        }
+                        WriteMode.Write(dB, CC, sets[(page * 10) + selectedSet]);
                     }
             } else
                 {

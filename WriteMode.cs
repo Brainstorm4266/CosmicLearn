@@ -38,10 +38,72 @@ namespace CosmicLearn
             return special_chars;
         }
 
-        public static void Write(DB dB, CustomConsole CC, Types.Set set, bool revDef)
+        public static void writeDatabase(DB dB, Types.Set set, Types.UserSetProgress usp)
         {
+            int h = Console.CursorTop;
+            int l = Console.CursorLeft;
+            Console.SetCursorPosition(0, Console.BufferHeight - 4);
+            Console.Write("Writing database...");
+            var udata = dB.getUserData();
+            if (udata is null)
+            {
+                throw new Exception();
+            }
+
+            for (int o = 0; o < udata.progresses.Count; o++)
+            {
+                var prog = udata.progresses[o];
+                if (prog.setId == set.setId)
+                {
+                    // this is the required set progress
+                    //var prgrs = udata.progresses[o];
+                    //prgrs.wordsCorrect = usp.wordsCorrect ?? prgrs.wordsCorrect;
+                    //prgrs.wordsRemaining = usp.wordsRemaining ?? prgrs.wordsRemaining;
+                    //prgrs.wordsIncorrect = usp.wordsIncorrect ?? prgrs.wordsIncorrect;
+                    //prgrs.correctNumber = usp.correctNumber;
+                    //prgrs.remainingNumber = usp.remainingNumber;
+                    //prgrs.incorrectNumber = usp.incorrectNumber;
+                    //prgrs.rounds = usp.rounds;
+                    //prgrs.currentWord = usp.currentWord ?? prgrs.currentWord;
+                    udata.progresses[o] = usp;
+                }
+            }
+
+            dB.setUserData(udata);
+            Console.SetCursorPosition(0, Console.BufferHeight - 4);
+            Console.Write("                     ");
+            Console.SetCursorPosition(l, h);
+        }
+
+        public static void Write(DB dB, CustomConsole CC, Types.Set set)
+        {
+            var udata = dB.getUserData();
+            if (udata is null)
+            {
+                throw new Exception();
+            }
+
+            Types.UserSetProgress upr = new Types.UserSetProgress();
+            foreach (var prog in udata.progresses)
+            {
+                if (prog.setId == set.setId)
+                {
+                    upr = prog;
+                }
+            }
             var words = set.words;
-            NewRound(dB, CC, words, revDef, 1, set, 0);
+            if (!upr.setOngoing)
+            {
+                upr.setOngoing = true;
+                upr.wordsRemaining = words;
+                upr.remainingNumber = words.Count;
+                upr.incorrectNumber = 0;
+                upr.correctNumber = 0;
+                upr.wordsCorrect = new List<Types.Word>();
+                upr.wordsIncorrect = new List<Types.Word>();
+                writeDatabase(dB, set, upr);
+            }
+            NewRound(dB, CC, upr, set);
         }
 
         public static void RenderTopbar(Types.Set set, int roundNum, int correct, int incorrect, int todo)
@@ -65,18 +127,22 @@ namespace CosmicLearn
             Console.WriteLine();
         }
 
-        public static void NewRound(DB dB, CustomConsole CC, List<Types.Word> words, bool revDef, int roundNum, Types.Set set, int correct)
+        public static void NewRound(DB dB, CustomConsole CC, Types.UserSetProgress usp, Types.Set set)
         {
-            var wordsNextRound = new List<Types.Word>();
             var running = true;
 
-            var incorrect = 0;
-            var todo = words.Count;
-            var wtotal = words.Count;
+            //var roundNum = usp.rounds;
+            //
+            //var correct = usp.correctNumber;
+            //
+            //var incorrect = usp.incorrectNumber;
+            //var todo = usp.remainingNumber;
+
+            var wtotal = usp.wordsRemaining.Count;
 
             var ran = new Random();
 
-            RenderTopbar(set, roundNum, correct, incorrect, todo);
+            RenderTopbar(set, usp.rounds, usp.correctNumber, usp.incorrectNumber, usp.remainingNumber);
 
             bool showMotivationScreen = false;
 
@@ -86,7 +152,7 @@ namespace CosmicLearn
                 if (wtotal % 2 == 0)
                 {
                     var c = wtotal;
-                    if (todo == (c / 2))
+                    if (usp.remainingNumber == (c / 2))
                     {
                         showMotivationScreen = true;
                     }
@@ -94,7 +160,7 @@ namespace CosmicLearn
                 else
                 {
                     var c = wtotal + 1;
-                    if (todo == (c / 2))
+                    if (usp.remainingNumber == (c / 2))
                     {
                         showMotivationScreen = true;
                     }
@@ -109,20 +175,29 @@ namespace CosmicLearn
                     Console.WriteLine("Press any key to continue!");
                     Console.ReadKey(true);
                     Console.Clear();
-                    RenderTopbar(set, roundNum, correct, incorrect, todo);
+                    RenderTopbar(set, usp.rounds, usp.correctNumber, usp.incorrectNumber, usp.remainingNumber);
                 }
 
-                if (words.Count > 0)
+                if (usp.wordsRemaining.Count > 0)
                 {
-                    var wordv = words[ran.Next(words.Count)];
-                    var word = (revDef ? wordv.definition : wordv.word);
-                    var def = (revDef ? wordv.word : wordv.definition);
+                    var wordv = usp.wordsRemaining[ran.Next(usp.wordsRemaining.Count)];
+                    if (usp.hasExited)
+                    {
+                        wordv = usp.currentWord;
+                        usp.hasExited = false;
+                        writeDatabase(dB, set, usp);
+                    }
+                    var word = (usp.setSettings.reverseDefintions ? wordv.definition : wordv.word);
+                    var def = (usp.setSettings.reverseDefintions ? wordv.word : wordv.definition);
                     Console.WriteLine("\n" + word + "\nType the translation and press [ENTER].");
                     int CPos = Console.CursorTop;
                     Console.Write("> ");
                     if (CC.acceptInputUntilEnterWriteAnswer(word, def))
                     {
                         // save
+                        usp.currentWord = wordv;
+                        usp.hasExited = true;
+                        writeDatabase(dB, set, usp);
                         Console.Clear();
                         return;
                     }
@@ -131,13 +206,14 @@ namespace CosmicLearn
                         Console.ForegroundColor = ConsoleColor.Green;
                         Console.Write("\nCorrect!");
                         Console.ForegroundColor = ConsoleColor.Gray;
-                        words.Remove(wordv);
-                        todo = todo - 1;
-                        correct++;
+                        usp.wordsRemaining.Remove(wordv);
+                        usp.remainingNumber--;
+                        usp.correctNumber++;
+                        writeDatabase(dB, set, usp);
                         Thread.Sleep(1000);
                         CC.clearInput();
                         Console.Clear();
-                        RenderTopbar(set, roundNum, correct, incorrect, todo);
+                        RenderTopbar(set, usp.rounds, usp.correctNumber, usp.incorrectNumber, usp.remainingNumber);
                     }
                     else
                     {
@@ -155,18 +231,20 @@ namespace CosmicLearn
                         if (ableToSkip == "y")
                         {
                             CC.clearInput();
-                            words.Remove(wordv);
-                            todo = todo - 1;
-                            correct++;
+                            usp.wordsRemaining.Remove(wordv);
+                            usp.remainingNumber--;
+                            usp.correctNumber++;
+                            writeDatabase(dB, set, usp);
                             //Thread.Sleep(1000);
                         }
                         else
                         {
                             CC.clearInput();
-                            words.Remove(wordv);
-                            wordsNextRound.Add(wordv);
-                            todo = todo - 1;
-                            incorrect++;
+                            usp.wordsRemaining.Remove(wordv);
+                            usp.wordsIncorrect.Add(wordv);
+                            usp.remainingNumber--;
+                            usp.incorrectNumber++;
+                            writeDatabase(dB, set, usp);
                             Console.Write("\nType the word again, for practice.\nWord: " + def);
                             Console.SetCursorPosition(0, CPos);
                             int i = Console.BufferWidth;
@@ -186,12 +264,12 @@ namespace CosmicLearn
                             Thread.Sleep(1000);
                         }
                         Console.Clear();
-                        RenderTopbar(set, roundNum, correct, incorrect, todo);
+                        RenderTopbar(set, usp.rounds, usp.correctNumber, usp.incorrectNumber, usp.remainingNumber);
                     }
                 }
                 else
                 {
-                    if (wordsNextRound.Count > 0)
+                    if (usp.wordsIncorrect.Count > 0)
                     {
                         Console.ForegroundColor = ConsoleColor.Green;
                         Console.WriteLine("\n\nRound completed, you did very good!");
@@ -200,7 +278,9 @@ namespace CosmicLearn
                         Console.ReadKey(true);
                         Console.Clear();
                         running = false;
-                        NewRound(dB, CC, wordsNextRound, revDef, roundNum+1, set, correct);
+                        usp.rounds++;
+                        writeDatabase(dB, set, usp);
+                        NewRound(dB, CC, usp, set);
                     } else
                     {
                         Console.ForegroundColor = ConsoleColor.Green;
@@ -208,6 +288,8 @@ namespace CosmicLearn
                         Console.ForegroundColor = ConsoleColor.Gray;
                         Thread.Sleep(2000);
                         Console.Clear();
+                        usp.setOngoing = false;
+                        writeDatabase(dB, set, usp);
                         running = false;
                     }
                 }
