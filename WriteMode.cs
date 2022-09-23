@@ -97,7 +97,6 @@ namespace CosmicLearn
             {
                 if (prog.setId == setId)
                 {
-                    Console.WriteLine("Setting prog with setId "+prog.setId+", current setId is "+set.setId);
                     upr = prog;
                 }
             }
@@ -281,6 +280,10 @@ namespace CosmicLearn
                                     return;
                                 }
                                 CC.clearInput();
+                            } else
+                            {
+                                Console.Write('\n');
+                                Thread.Sleep(1000);
                             }
                             Thread.Sleep(1000);
                         }

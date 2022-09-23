@@ -2,7 +2,7 @@
 {
     internal class LearnSet
     {
-        public static void setSettings(DB dB, CustomConsole CC, Types.Set set)
+        public static void setSettings(DB dB, CustomConsole CC, int setId)
         {
             CC.clearInput();
             ConsoleKey[] whitelist = { ConsoleKey.Y, ConsoleKey.N };
@@ -23,7 +23,7 @@
                     for (int o = 0; o < userData.progresses.Count; o++)
                     {
                         var setProgress = userData.progresses[o];
-                        if (setProgress.setId == set.setId)
+                        if (setProgress.setId == setId)
                         {
                             setSettings = true;
                         }
@@ -34,7 +34,7 @@
                         // make new data
                         userData.progresses.Add(new Types.UserSetProgress
                         {
-                            setId = set.setId,
+                            setId = setId,
                             setSettings = new Types.SetSettings(),
                             rounds = 0,
                             correctNumber = 0,
@@ -57,7 +57,7 @@
                 var settings = new Types.SetSettings();
                 foreach (var prog in userData.progresses)
                 {
-                    if (prog.setId == set.setId)
+                    if (prog.setId == setId)
                     {
                         settings = prog.setSettings;
                     }
@@ -138,7 +138,7 @@
                         for (int i = 0; i < userData.progresses.Count; i++)
                         {
                             var setProgress = userData.progresses[i];
-                            if (setProgress.setId == set.setId)
+                            if (setProgress.setId == setId)
                             {
                                 userData.progresses[i].setSettings = settings;
                                 setSettings = true;
@@ -150,7 +150,7 @@
                             // make new data
                             userData.progresses.Add(new Types.UserSetProgress
                             {
-                                setId = set.setId,
+                                setId = setId,
                                 setSettings = new Types.SetSettings(),
                                 rounds = 0,
                                 correctNumber = 0,
@@ -282,7 +282,7 @@
                             }
                         }
                         Console.Clear();
-                        setSettings(dB, CC, sets[(page * 10) + selectedSet]);
+                        setSettings(dB, CC, (page * 10) + selectedSet);
                         var userData = dB.getUserData();
                         if (userData is null)
                         {
