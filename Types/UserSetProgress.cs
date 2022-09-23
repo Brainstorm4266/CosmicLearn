@@ -9,5 +9,6 @@ namespace CosmicLearn.Types
         public int wordsRemaining { get; set; }
         public int wordsIncorrect { get; set; }
         public int rounds { get; set; }
+        public SetSettings setSettings { get; set; } = new SetSettings();
     }
 }
